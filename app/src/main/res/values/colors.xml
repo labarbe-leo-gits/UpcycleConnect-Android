@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary_green">#28B463</color>
+    <color name="light_grey">#F8F9F9</color>
+    <color name="medium_grey">#909497</color>
+    <color name="divider_color">#D5DBDB</color>
+    <color name="google_blue">#4285F4</color>
+    <color name="facebook_blue">#1877F2</color>
 </resources>
