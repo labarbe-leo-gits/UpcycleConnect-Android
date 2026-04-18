@@ -56,6 +56,7 @@
                 app:startIconDrawable="@android:drawable/ic_menu_myplaces">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/usernameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/enter_username_or_email"
@@ -78,6 +79,7 @@
                 app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/enter_password"
@@ -94,14 +96,28 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.button.MaterialButton
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/primary_green"
-                android:text="@string/login"
-                android:textAllCaps="false"
-                app:cornerRadius="8dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/loginBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:backgroundTint="@color/primary_green"
+                    android:text="@string/login"
+                    android:textAllCaps="false"
+                    app:cornerRadius="8dp" />
+
+                <ProgressBar
+                    android:id="@+id/loginProgress"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/white"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
