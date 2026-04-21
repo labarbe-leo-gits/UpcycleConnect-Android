@@ -16,6 +16,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UpcycleConnect">
         <activity
+            android:name=".OffersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UpdocEditorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UpdocActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ContainerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ContainersActivity"
+            android:exported="false" />
+        <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity

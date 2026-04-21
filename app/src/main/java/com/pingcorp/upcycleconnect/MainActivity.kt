@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Show loading state
         loginBtn.isEnabled = false
         loginBtn.text = ""
         loginProgress.visibility = View.VISIBLE
@@ -120,22 +119,24 @@ class MainActivity : AppCompatActivity() {
                         return@thread
                     }
 
+                    val sessionManager = SessionManager(this@MainActivity)
+                    sessionManager.saveSession(
+                        token,
+                        userId,
+                        userObj.optString("username"),
+                        userObj.optString("first_name"),
+                        userObj.optString("last_name"),
+                        userObj.optDouble("balance", 0.0)
+                    )
+
                     runOnUiThread {
-                        // Reset loading state
                         loginBtn.isEnabled = true
                         loginBtn.text = getString(R.string.login)
                         loginProgress.visibility = View.GONE
 
                         val intent = Intent(this@MainActivity, ProfileActivity::class.java)
-                        intent.putExtra("token", token)
-                        intent.putExtra("userId", userId)
-                        
-                        intent.putExtra("username", userObj.optString("username"))
-                        intent.putExtra("first_name", userObj.optString("first_name"))
-                        intent.putExtra("last_name", userObj.optString("last_name"))
-                        intent.putExtra("balance", userObj.optDouble("balance", 0.0))
-
                         startActivity(intent)
+                        finish()
                     }
 
                     Log.e("Login", "SUCCESS: Login succeeded for user $username")
@@ -196,10 +197,8 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
 
-        // Query API_URL on /
         checkApiHealth()
 
-        // Login setup
         val usernameInput = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.usernameInput)
         val passwordInput = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.passwordInput)
         val loginBtn = findViewById<com.google.android.material.button.MaterialButton>(R.id.loginBtn)
