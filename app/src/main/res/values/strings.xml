@@ -19,4 +19,8 @@
     <string name="balance">Balance</string>
     <string name="loading">Loading...</string>
     <string name="logout">Logout</string>
+    <string name="mfa_validation">2FA Validation</string>
+    <string name="totp_code">Enter the code shown in your authentification app</string>
+    <string name="code_otp_label">Code</string>
+    <string name="check">Check</string>
 </resources>

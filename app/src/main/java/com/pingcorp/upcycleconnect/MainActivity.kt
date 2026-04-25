@@ -98,7 +98,31 @@ class MainActivity : AppCompatActivity() {
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                    Log.d("Login", "Response: $responseText")
                     val jsonResponse = JSONObject(responseText)
+                    
+                    val mfaRequired = jsonResponse.optBoolean("mfa_required", false) || jsonResponse.has("temp_token")
+                    
+                    if (mfaRequired) {
+                        val tempToken = jsonResponse.optString("temp_token")
+                        if (tempToken.isNotEmpty()) {
+                            runOnUiThread {
+                                loginBtn.isEnabled = true
+                                loginBtn.text = getString(R.string.login)
+                                loginProgress.visibility = View.GONE
+                                
+                                val intent = Intent(this@MainActivity, MfaActivity::class.java)
+                                intent.putExtra("TEMP_TOKEN", tempToken)
+                                startActivity(intent)
+                            }
+                            return@thread
+                        }
+                    }
+
+                    if (!jsonResponse.has("token")) {
+                        throw Exception("Token manquant dans la réponse du serveur")
+                    }
+
                     val token = jsonResponse.getString("token")
                     val userObj = jsonResponse.getJSONObject("user")
                     val userId = userObj.getString("id")
