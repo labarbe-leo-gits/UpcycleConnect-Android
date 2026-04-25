@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UpcycleConnect">
         <activity
+            android:name=".MfaActivity"
+            android:exported="false" />
+        <activity
             android:name=".OffersActivity"
             android:exported="false" />
         <activity
