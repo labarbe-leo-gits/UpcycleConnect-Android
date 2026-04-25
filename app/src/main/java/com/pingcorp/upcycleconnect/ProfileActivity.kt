@@ -44,7 +44,6 @@ class ProfileActivity : BaseActivity() {
         tvLastName = findViewById(R.id.tvLastName)
         tvBalance = findViewById(R.id.tvBalance)
 
-
         displaySessionData()
 
         val token = sessionManager.getToken()

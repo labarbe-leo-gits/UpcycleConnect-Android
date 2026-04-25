@@ -16,17 +16,25 @@ object RetrofitClient {
         .build()
 
     val authApi: AuthApiService by lazy {
+        createApi(AuthApiService::class.java)
+    }
+
+    val api: ApiService by lazy {
+        createApi(ApiService::class.java)
+    }
+
+    private fun <T> createApi(serviceClass: Class<T>): T {
         val apiUrl = BuildConfig.API_URL
         val baseUrl = when {
             apiUrl.startsWith("http") -> if (apiUrl.endsWith("/")) apiUrl else "$apiUrl/"
             else -> "http://$apiUrl/"
         }
 
-        Retrofit.Builder()
+        return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
-            .create(AuthApiService::class.java)
+            .create(serviceClass)
     }
 }
