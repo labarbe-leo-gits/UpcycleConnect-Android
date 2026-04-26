@@ -37,6 +37,21 @@ class MfaActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null){
                     val body = response.body()!!
 
+                    val banResponse = RetrofitClient.api.getUserBan(body.user.id, "Bearer ${body.token}")
+                    
+                    if (banResponse.isSuccessful && !banResponse.body().isNullOrEmpty()) {
+                        val ban = banResponse.body()!![0]
+                        withContext(Dispatchers.Main) {
+                            val intent = Intent(this@MfaActivity, BanActivity::class.java)
+                            intent.putExtra("BAN_REASON", ban.reason)
+                            intent.putExtra("BANNED_BY", ban.bannedBy)
+                            intent.putExtra("TOKEN", body.token)
+                            startActivity(intent)
+                            finish()
+                        }
+                        return@launch
+                    }
+
                     val sessionManager = SessionManager(this@MfaActivity)
                     sessionManager.saveSession(
                         body.token,

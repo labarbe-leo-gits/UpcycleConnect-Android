@@ -40,3 +40,14 @@ data class Annonce(
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null
 )
+
+@Serializable
+data class Ban(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("reason") val reason: String,
+    @SerialName("banned_at") val bannedAt: String,
+    @SerialName("banned_by") val bannedBy: String,
+    @SerialName("duration_days") val duration: Int
+
+)

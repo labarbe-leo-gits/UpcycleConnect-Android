@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -15,6 +16,10 @@ import kotlin.concurrent.thread
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -143,27 +148,55 @@ class MainActivity : AppCompatActivity() {
                         return@thread
                     }
 
-                    val sessionManager = SessionManager(this@MainActivity)
-                    sessionManager.saveSession(
-                        token,
-                        userId,
-                        userObj.optString("username"),
-                        userObj.optString("first_name"),
-                        userObj.optString("last_name"),
-                        userObj.optDouble("balance", 0.0)
-                    )
 
-                    runOnUiThread {
-                        loginBtn.isEnabled = true
-                        loginBtn.text = getString(R.string.login)
-                        loginProgress.visibility = View.GONE
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val banResponse = RetrofitClient.api.getUserBan(userId, "Bearer $token")
+                            if (banResponse.isSuccessful && !banResponse.body().isNullOrEmpty()) {
+                                val ban = banResponse.body()!![0]
+                                withContext(Dispatchers.Main) {
+                                    loginBtn.isEnabled = true
+                                    loginBtn.text = getString(R.string.login)
+                                    loginProgress.visibility = View.GONE
 
-                        val intent = Intent(this@MainActivity, ProfileActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                                    val intent = Intent(this@MainActivity, BanActivity::class.java)
+                                    intent.putExtra("BAN_REASON", ban.reason)
+                                    intent.putExtra("BANNED_BY", ban.bannedBy)
+                                    intent.putExtra("TOKEN", token)
+                                    startActivity(intent)
+                                }
+                            } else {
+                                val sessionManager = SessionManager(this@MainActivity)
+                                sessionManager.saveSession(
+                                    token,
+                                    userId,
+                                    userObj.optString("username"),
+                                    userObj.optString("first_name"),
+                                    userObj.optString("last_name"),
+                                    userObj.optDouble("balance", 0.0)
+                                )
+
+                                withContext(Dispatchers.Main) {
+                                    loginBtn.isEnabled = true
+                                    loginBtn.text = getString(R.string.login)
+                                    loginProgress.visibility = View.GONE
+
+                                    val intent = Intent(this@MainActivity, ProfileActivity::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("Login", "Error checking ban", e)
+                            withContext(Dispatchers.Main) {
+                                loginBtn.isEnabled = true
+                                loginBtn.text = getString(R.string.login)
+                                loginProgress.visibility = View.GONE
+                                Toast.makeText(this@MainActivity, "Erreur lors de la vérification du compte", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
-
-                    Log.e("Login", "SUCCESS: Login succeeded for user $username")
+                    return@thread
                 } else {
                     val errorDetail = connection.errorStream?.bufferedReader()?.use { it.readText() } ?: "No error detail"
                     Log.w("Login", "FAILED: Response code $responseCode. Detail: $errorDetail")
