@@ -16,3 +16,27 @@ data class Container(
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String
 )
+
+@Serializable
+data class Annonce(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    val title: String,
+    val status: Int,
+    @SerialName("view_count") val viewCount: Int,
+    val description: String? = null,
+    val price: Double? = null,
+    @SerialName("poids_materiaux") val poidsMateriaux: Double? = null,
+    @SerialName("facteur_id") val facteurId: String? = null,
+    @SerialName("type_materiaux") val typeMateriaux: String? = null,
+    @SerialName("estimation_score") val estimationScore: Double? = null,
+    @SerialName("upcycling_score") val upcyclingScore: Double? = null,
+    @SerialName("category_id") val categoryId: String? = null,
+    @SerialName("category_name") val categoryName: String? = null,
+    @SerialName("item_state") val itemState: Int,
+    @SerialName("ad_campaign_id") val adCampaignId: String? = null,
+    @SerialName("seller_user_type") val sellerUserType: Int? = null,
+    val promoted: Boolean? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String? = null
+)

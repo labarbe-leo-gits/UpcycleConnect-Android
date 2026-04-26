@@ -9,4 +9,6 @@ import retrofit2.http.Header
 interface ApiService {
     @GET("/conteneurs")
     suspend fun getContainers(@Header("Authorization") token: String): Response<List<Container>>
+    @GET("/annonces")
+    suspend fun getAnnonces(@Header("Authorization") token: String): Response<List<Annonce>>
 }
