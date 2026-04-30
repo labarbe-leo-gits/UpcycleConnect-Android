@@ -12,6 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class MfaActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,9 +40,11 @@ class MfaActivity : AppCompatActivity() {
                     val body = response.body()!!
 
                     val banResponse = RetrofitClient.api.getUserBan(body.user.id, "Bearer ${body.token}")
+                    val element = banResponse.body()
                     
-                    if (banResponse.isSuccessful && !banResponse.body().isNullOrEmpty()) {
-                        val ban = banResponse.body()!![0]
+                    if (banResponse.isSuccessful && element is JsonArray && element.isNotEmpty()) {
+                        val bans = RetrofitClient.json.decodeFromJsonElement<List<Ban>>(element)
+                        val ban = bans[0]
                         withContext(Dispatchers.Main) {
                             val intent = Intent(this@MfaActivity, BanActivity::class.java)
                             intent.putExtra("BAN_REASON", ban.reason)

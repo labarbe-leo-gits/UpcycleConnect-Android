@@ -20,6 +20,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class MainActivity : AppCompatActivity() {
 
@@ -152,8 +154,10 @@ class MainActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             val banResponse = RetrofitClient.api.getUserBan(userId, "Bearer $token")
-                            if (banResponse.isSuccessful && !banResponse.body().isNullOrEmpty()) {
-                                val ban = banResponse.body()!![0]
+                            val element = banResponse.body()
+                            if (banResponse.isSuccessful && element is JsonArray && element.isNotEmpty()) {
+                                val bans = RetrofitClient.json.decodeFromJsonElement<List<Ban>>(element)
+                                val ban = bans[0]
                                 withContext(Dispatchers.Main) {
                                     loginBtn.isEnabled = true
                                     loginBtn.text = getString(R.string.login)

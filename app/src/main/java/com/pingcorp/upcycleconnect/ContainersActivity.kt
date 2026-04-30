@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class ContainersActivity : BaseActivity() {
     private lateinit var sessionManager: SessionManager
@@ -47,7 +49,12 @@ class ContainersActivity : BaseActivity() {
                 val response = RetrofitClient.api.getContainers("Bearer $token")
 
                 if (response.isSuccessful){
-                    val containers = response.body() ?: emptyList()
+                    val element = response.body()
+                    val containers = if (element is JsonArray) {
+                        RetrofitClient.json.decodeFromJsonElement<List<Container>>(element)
+                    } else {
+                        emptyList()
+                    }
 //                    Log.d("ContainersActivity", "Fetched ${containers?.size} containers")
 //                    Toast.makeText(this@ContainersActivity, "Fetched ${containers?.size} containers", Toast.LENGTH_SHORT).show()
 

@@ -13,6 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class OffersActivity : BaseActivity() {
     private lateinit var sessionManager: SessionManager
@@ -48,7 +50,12 @@ class OffersActivity : BaseActivity() {
                 val response = RetrofitClient.api.getAnnonces("Bearer $token")
 
                 if (response.isSuccessful){
-                    val offers = response.body() ?: emptyList()
+                    val element = response.body()
+                    val offers = if (element is JsonArray) {
+                        RetrofitClient.json.decodeFromJsonElement<List<Annonce>>(element)
+                    } else {
+                        emptyList()
+                    }
                     val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewOffers)
                     recyclerView.adapter = OffersAdapter(offers)
                 } else {

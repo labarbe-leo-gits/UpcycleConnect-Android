@@ -7,7 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
 object RetrofitClient {
-    private val json = Json { ignoreUnknownKeys = true }
+    val json = Json { ignoreUnknownKeys = true }
 
     private val okHttpClient = okhttp3.OkHttpClient.Builder()
         .addInterceptor(okhttp3.logging.HttpLoggingInterceptor().apply {

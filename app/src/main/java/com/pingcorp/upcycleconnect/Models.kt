@@ -51,3 +51,18 @@ data class Ban(
     @SerialName("duration_days") val duration: Int
 
 )
+
+@Serializable
+data class Project(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("author_name") val authorName: String? = null,
+    @SerialName("annonce_id") val annonceId: String? = null,
+    val title: String,
+    val description: String,
+    val status: Int,
+    @SerialName("ai_generated") val aiGenerated: Int,
+    val views: Int,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String
+)
