@@ -66,3 +66,50 @@ data class Project(
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String
 )
+
+@Serializable
+data class ProjectStep(
+    val id: String,
+    @SerialName("project_id") val projectId: String,
+    @SerialName("step_order") val stepOrder: Int,
+    val title: String,
+    val description: String,
+    @SerialName("duration_minutes") val durationMin: Int,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class ProjectComment(
+    val id: String,
+    @SerialName("project_id") val projectId: String,
+    @SerialName("user_id") val userId: String,
+    val username: String,
+    @SerialName("parent_id") val parentId: String,
+    val content: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String
+)
+
+@Serializable
+data class ProjectLikes(
+    val id: String,
+    @SerialName("project_id") val projectId: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class ProjectStepMaterial(
+    @SerialName("step_id") val stepId: String,
+    @SerialName("facteur_id") val facteurId: String,
+    val quantity: Float,
+    val nom: String
+)
+
+@Serializable
+data class MaterialFactor(
+    val id: String,
+    val nom: String,
+    @SerialName("facteur_co2") val factor: Float,
+    @SerialName("facteur_energie") val energy: Float
+)
