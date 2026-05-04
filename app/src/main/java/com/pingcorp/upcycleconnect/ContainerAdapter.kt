@@ -1,5 +1,6 @@
 package com.pingcorp.upcycleconnect
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,12 @@ class ContainerAdapter(private val containers: List<Container>):
     override fun onBindViewHolder(holder: ContainerViewHolder, position: Int){
         val container = containers[position]
         holder.nameTextView.text = container.name
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, ContainerActivity::class.java)
+            intent.putExtra("CONTAINER_ID", container.id)
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount() = containers.size

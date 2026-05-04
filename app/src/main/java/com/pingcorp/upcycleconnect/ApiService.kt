@@ -11,6 +11,11 @@ import kotlinx.serialization.json.JsonElement
 interface ApiService {
     @GET("/conteneurs")
     suspend fun getContainers(@Header("Authorization") token: String): Response<JsonElement>
+    @GET("/conteneurs/{id}")
+    suspend fun getContainer(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
     @GET("/annonces")
     suspend fun getAnnonces(@Header("Authorization") token: String): Response<JsonElement>
     @GET("/projects")

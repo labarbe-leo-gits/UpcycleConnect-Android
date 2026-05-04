@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
 class ContainersActivity : BaseActivity() {
@@ -50,18 +51,21 @@ class ContainersActivity : BaseActivity() {
 
                 if (response.isSuccessful){
                     val element = response.body()
-                    val containers = if (element is JsonArray) {
-                        RetrofitClient.json.decodeFromJsonElement<List<Container>>(element)
-                    } else {
-                        emptyList()
+                    val containers = when (element) {
+                        is JsonArray -> RetrofitClient.json.decodeFromJsonElement<List<Container>>(element)
+                        is JsonObject -> {
+                            val items = element["items"]
+                            if (items is JsonArray) {
+                                RetrofitClient.json.decodeFromJsonElement<List<Container>>(items)
+                            } else {
+                                emptyList()
+                            }
+                        }
+                        else -> emptyList()
                     }
-//                    Log.d("ContainersActivity", "Fetched ${containers?.size} containers")
-//                    Toast.makeText(this@ContainersActivity, "Fetched ${containers?.size} containers", Toast.LENGTH_SHORT).show()
 
                     val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewContainers)
-
                     recyclerView.adapter = ContainerAdapter(containers)
-
                     recyclerView.layoutManager = LinearLayoutManager(this@ContainersActivity)
 
                 } else {
@@ -75,4 +79,6 @@ class ContainersActivity : BaseActivity() {
             }
         }
     }
+
+    override fun getSelfNavDrawerItemId(): Int = R.id.nav_containers
 }
