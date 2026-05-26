@@ -2,6 +2,7 @@ package com.pingcorp.upcycleconnect
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.io.Serial
 
 @Serializable
 data class Container(
@@ -112,4 +113,163 @@ data class MaterialFactor(
     val nom: String,
     @SerialName("facteur_co2") val factor: Float,
     @SerialName("facteur_energie") val energy: Float
+)
+
+@Serializable
+data class Deposit(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("conteneur_id") val conteneurId: String,
+    @SerialName("object_name") val objectName: String,
+    @SerialName("object_description") val objectDescription: String,
+    @SerialName("object_state") val objectState: Int? = null,
+    val status: Int,
+    val barcode: String? = null,
+    @SerialName("retrieval_code") val retrievalCode: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String
+)
+
+@Serializable
+data class UpdateDepositStatusDto(
+    val status: Int,
+    val id: String? = null
+)
+
+@Serializable
+data class DepositFile(
+    val id: String,
+    @SerialName("deposit_id") val depositId: String,
+    val filename: String,
+    @SerialName("original_name") val originalName: String,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class DepositFileInput(
+    val filename: String,
+    @SerialName("original_name") val originalName: String
+)
+
+@Serializable
+data class ConteneurItem(
+    val id: String,
+    @SerialName("user_id") val userId: String,
+    @SerialName("conteneur_id") val conteneurId: String,
+    @SerialName("object_name") val objectName: String,
+    @SerialName("object_description") val objectDescription: String,
+    @SerialName("object_state") val objectState: Int? = null,
+    val status: Int,
+    val barcode: String? = null,
+    @SerialName("retrieval_code") val retrievalCode: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String,
+    val files: List<DepositFile>
+)
+
+@Serializable
+data class Notification(
+    val id: String,
+    @SerialName("annonce_id") val annonceId: String,
+    @SerialName("user_id") val userId: String,
+    val message: String,
+    val read: Boolean,
+    @SerialName("created_at") val createdAt: String
+)
+
+@Serializable
+data class PaymentIntentRequest(
+    @SerialName("product_uuid") val productUuid: String
+)
+
+@Serializable
+data class PaymentIntentResponse(
+    @SerialName("client_secret") val clientSecret: String,
+    @SerialName("publishable_key") val publishableKey: String? = null
+)
+
+@Serializable
+data class VerifyPaymentRequest(
+    @SerialName("payment_intent") val paymentIntent: String,
+    @SerialName("product_uuid") val productUuid: String
+)
+
+@Serializable
+data class VerifyPaymentResponse(
+    val success: Boolean,
+    val message: String? = null
+)
+
+@Serializable
+data class Order(
+    val id: String? = null,
+    @SerialName("user_id") val userId: String,
+    @SerialName("product_id") val productId: String? = null,
+    val amount: Double,
+    @SerialName("transaction_id") val transactionId: String,
+    val status: Int,
+    @SerialName("event_id") val eventId: String? = null,
+    @SerialName("event_availability_id") val eventAvailabilityId: String? = null,
+    @SerialName("created_at") val createdAt: String? = null
+)
+
+@Serializable
+data class UpdateAnnonceStatusDto(
+    val status: Int
+)
+
+@Serializable
+data class GeminiRequest(
+    val contents: List<GeminiContent>,
+    val generationConfig: GeminiConfig? = null
+)
+
+@Serializable
+data class GeminiContent(
+    val parts: List<GeminiPart>
+)
+
+@Serializable
+data class GeminiPart(
+    val text: String,
+    val thought: Boolean? = null
+)
+
+@Serializable
+data class GeminiConfig(
+    val temperature: Float? = null,
+    @SerialName("maxOutputTokens") val maxOutputTokens: Int? = null
+)
+
+@Serializable
+data class GeminiResponse(
+    val candidates: List<GeminiCandidate>
+)
+
+@Serializable
+data class GeminiCandidate(
+    val content: GeminiContent
+)
+
+@Serializable
+data class CreateProjectDto(
+    @SerialName("user_id") val userId: String,
+    val title: String,
+    val description: String,
+    val status: Int = 1,
+    @SerialName("ai_generated") val aiGenerated: Int = 0,
+    @SerialName("annonce_id") val annonceId: String? = null
+)
+
+@Serializable
+data class CreateProjectStepDto(
+    @SerialName("step_order") val stepOrder: Int,
+    val title: String,
+    val description: String,
+    @SerialName("duration_minutes") val durationMin: Int? = null
+)
+
+@Serializable
+data class AiDetectionResponse(
+    @SerialName("ai_generated") val aiGenerated: Boolean
 )

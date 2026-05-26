@@ -57,7 +57,11 @@ class OffersActivity : BaseActivity() {
                         emptyList()
                     }
                     val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewOffers)
-                    recyclerView.adapter = OffersAdapter(offers)
+                    recyclerView.adapter = OffersAdapter(offers) { offer ->
+                        val intent = android.content.Intent(this@OffersActivity, CheckoutActivity::class.java)
+                        intent.putExtra("PRODUCT_UUID", offer.id)
+                        startActivity(intent)
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("OffersActivity", "Failed to fetch offers: ${response.code()} - $errorBody")

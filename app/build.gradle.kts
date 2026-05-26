@@ -33,6 +33,10 @@ android {
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
         val apiUrl = localProperties.getProperty("API_URL") ?: ""
         buildConfigField("String", "API_URL", "\"$apiUrl\"")
+        val stripeKey = localProperties.getProperty("STRIPE_PUBLISHABLE_KEY") ?: ""
+        buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"$stripeKey\"")
+        val geminiKey = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
     }
 
     buildTypes {
@@ -70,5 +74,5 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
+    implementation(libs.stripe.android)
 }

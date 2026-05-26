@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class OffersAdapter(private val offers: List<Annonce>) :
-    RecyclerView.Adapter<OffersAdapter.OfferViewHolder>() {
+class OffersAdapter(
+    private val offers: List<Annonce>,
+    private val onOfferClick: (Annonce) -> Unit
+) : RecyclerView.Adapter<OffersAdapter.OfferViewHolder>() {
 
     class OfferViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleTextView: TextView = view.findViewById(R.id.offerTitle)
@@ -24,6 +26,7 @@ class OffersAdapter(private val offers: List<Annonce>) :
         val offer = offers[position]
         holder.titleTextView.text = offer.title
         holder.priceTextView.text = if (offer.price != null) "${offer.price} €" else "Free"
+        holder.itemView.setOnClickListener { onOfferClick(offer) }
     }
 
     override fun getItemCount() = offers.size
