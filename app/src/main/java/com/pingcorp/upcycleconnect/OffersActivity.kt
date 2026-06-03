@@ -1,9 +1,13 @@
 package com.pingcorp.upcycleconnect
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.se.omapi.Session
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.widget.Toolbar
@@ -57,10 +61,23 @@ class OffersActivity : BaseActivity() {
                         emptyList()
                     }
                     val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewOffers)
-                    recyclerView.adapter = OffersAdapter(offers) { offer ->
-                        val intent = android.content.Intent(this@OffersActivity, CheckoutActivity::class.java)
+                    val adapter = OffersAdapter(offers) { offer ->
+                        val intent = Intent(this@OffersActivity, CheckoutActivity::class.java)
                         intent.putExtra("PRODUCT_UUID", offer.id)
                         startActivity(intent)
+                    }
+                    recyclerView.adapter = adapter
+
+                    val emptyState = findViewById<View>(R.id.emptyState)
+                    if (offers.isEmpty()) {
+                        emptyState.visibility = View.VISIBLE
+                        findViewById<TextView>(R.id.emptyStateText).text = getString(R.string.empty_offers_message)
+                        findViewById<Button>(R.id.emptyStateButton).apply {
+                            text = getString(R.string.refresh_btn)
+                            setOnClickListener { fetchOffers() }
+                        }
+                    } else {
+                        emptyState.visibility = View.GONE
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()

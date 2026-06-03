@@ -3,6 +3,9 @@ package com.pingcorp.upcycleconnect
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.widget.Toolbar
@@ -93,6 +96,20 @@ class UpdocActivity : BaseActivity() {
                     updocsList.clear()
                     updocsList.addAll(updocs)
                     adapter.notifyDataSetChanged()
+
+                    val emptyState = findViewById<View>(R.id.emptyState)
+                    if (updocsList.isEmpty()) {
+                        emptyState.visibility = View.VISIBLE
+                        findViewById<TextView>(R.id.emptyStateText).text = getString(R.string.empty_updoc_message)
+                        findViewById<Button>(R.id.emptyStateButton).apply {
+                            text = getString(R.string.create_updoc_btn)
+                            setOnClickListener {
+                                startActivity(Intent(this@UpdocActivity, UpdocEditorActivity::class.java))
+                            }
+                        }
+                    } else {
+                        emptyState.visibility = View.GONE
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("UpdocActivity", "Failed to fetch Updocs: ${response.code()} - $errorBody")

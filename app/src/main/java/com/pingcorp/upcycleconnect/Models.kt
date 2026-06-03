@@ -37,6 +37,9 @@ data class Annonce(
     @SerialName("item_state") val itemState: Int,
     @SerialName("ad_campaign_id") val adCampaignId: String? = null,
     @SerialName("seller_user_type") val sellerUserType: Int? = null,
+    @SerialName("seller_username") val sellerUsername: String? = null,
+    @SerialName("seller_rating") val sellerRating: Double? = null,
+    @SerialName("item_state_label") val itemStateLabel: String? = null,
     val promoted: Boolean? = null,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null
@@ -168,6 +171,15 @@ data class ConteneurItem(
 )
 
 @Serializable
+data class User(
+    val id: String,
+    val username: String,
+    @SerialName("first_name") val firstName: String? = null,
+    @SerialName("last_name") val lastName: String? = null,
+    val email: String? = null
+)
+
+@Serializable
 data class Notification(
     val id: String,
     @SerialName("annonce_id") val annonceId: String,
@@ -179,7 +191,8 @@ data class Notification(
 
 @Serializable
 data class PaymentIntentRequest(
-    @SerialName("product_uuid") val productUuid: String
+    @SerialName("product_uuid") val productUuid: String,
+    val token: String? = null
 )
 
 @Serializable
@@ -191,7 +204,8 @@ data class PaymentIntentResponse(
 @Serializable
 data class VerifyPaymentRequest(
     @SerialName("payment_intent") val paymentIntent: String,
-    @SerialName("product_uuid") val productUuid: String
+    @SerialName("product_uuid") val productUuid: String,
+    val token: String? = null
 )
 
 @Serializable

@@ -1,8 +1,13 @@
 package com.pingcorp.upcycleconnect
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.widget.Toolbar
@@ -38,6 +43,11 @@ class ContainersActivity : BaseActivity() {
         fetchContainers()
     }
 
+    override fun onResume() {
+        super.onResume()
+        findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
+    }
+
     private fun fetchContainers(){
         val token = sessionManager.getToken()
         if (token == null){
@@ -45,9 +55,13 @@ class ContainersActivity : BaseActivity() {
             return
         }
 
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+        progressBar.visibility = View.VISIBLE
+
         lifecycleScope.launch{
             try{
                 val response = RetrofitClient.api.getContainers("Bearer $token")
+                progressBar.visibility = View.GONE
 
                 if (response.isSuccessful){
                     val element = response.body()
@@ -65,15 +79,35 @@ class ContainersActivity : BaseActivity() {
                     }
 
                     val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewContainers)
-                    recyclerView.adapter = ContainerAdapter(containers)
+                    val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+                    
+                    recyclerView.adapter = ContainerAdapter(containers) { container ->
+                        progressBar.visibility = View.VISIBLE
+                        val intent = Intent(this@ContainersActivity, ContainerActivity::class.java)
+                        intent.putExtra("CONTAINER_ID", container.id)
+                        startActivity(intent)
+                    }
                     recyclerView.layoutManager = LinearLayoutManager(this@ContainersActivity)
 
+                    val emptyState = findViewById<View>(R.id.emptyState)
+                    if (containers.isEmpty()) {
+                        emptyState.visibility = View.VISIBLE
+                        findViewById<TextView>(R.id.emptyStateText).text = getString(R.string.empty_containers_message)
+                        findViewById<Button>(R.id.emptyStateButton).apply {
+                            text = getString(R.string.refresh_btn)
+                            setOnClickListener { fetchContainers() }
+                        }
+                    } else {
+                        emptyState.visibility = View.GONE
+                    }
                 } else {
+                    progressBar.visibility = View.GONE
                     val errorBody = response.errorBody()?.string()
                     Log.e("ContainersActivity", "Failed to fetch containers: ${response.code()} - $errorBody")
                     Toast.makeText(this@ContainersActivity, "Failed to fetch containers", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception){
+                progressBar.visibility = View.GONE
                 Log.e("ContainersActivity", "Exception fetching containers", e)
                 Toast.makeText(this@ContainersActivity, "Error fetching containers: ${e.message}", Toast.LENGTH_SHORT).show()
             }

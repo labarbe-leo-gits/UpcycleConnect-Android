@@ -19,11 +19,15 @@ object RetrofitClient {
         .build()
 
     val authApi: AuthApiService by lazy {
-        createApi(AuthApiService::class.java)
+        createApi(AuthApiService::class.java, BuildConfig.API_URL)
     }
 
     val api: ApiService by lazy {
-        createApi(ApiService::class.java)
+        createApi(ApiService::class.java, BuildConfig.API_URL)
+    }
+
+    val phpApi: ApiService by lazy {
+        createApi(ApiService::class.java, "http://10.0.2.2:8081/")
     }
 
     val geminiApi: GeminiApiService by lazy {
@@ -35,8 +39,7 @@ object RetrofitClient {
             .create(GeminiApiService::class.java)
     }
 
-    private fun <T> createApi(serviceClass: Class<T>): T {
-        val apiUrl = BuildConfig.API_URL
+    private fun <T> createApi(serviceClass: Class<T>, apiUrl: String): T {
         val baseUrl = when {
             apiUrl.startsWith("http") -> if (apiUrl.endsWith("/")) apiUrl else "$apiUrl/"
             else -> "http://$apiUrl/"

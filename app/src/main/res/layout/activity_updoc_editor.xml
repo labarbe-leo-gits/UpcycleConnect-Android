@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary_green"
-            app:title="New UpDoc"
+            app:title="@string/new_updoc_title"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -35,7 +35,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Project Title">
+                android:hint="@string/project_title_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTitle"
@@ -54,7 +54,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI Description"
+                    android:text="@string/ai_description_btn"
                     app:icon="@android:drawable/ic_menu_send" />
 
                 <Button
@@ -62,7 +62,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI Steps"
+                    android:text="@string/ai_steps_btn"
                     app:icon="@android:drawable/ic_menu_send" />
 
                 <Button
@@ -70,7 +70,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI All"
+                    android:text="@string/ai_all_btn"
                     app:icon="@android:drawable/ic_menu_send" />
             </LinearLayout>
 
@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="Description">
+                android:hint="@string/description_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDescription"
@@ -93,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Steps"
+                android:text="@string/steps_label"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -109,7 +109,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Add Step" />
+                android:text="@string/add_step_btn" />
 
             <Button
                 android:id="@+id/btnSave"
@@ -117,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:backgroundTint="@color/primary_green"
-                android:text="Save Project" />
+                android:text="@string/save_project_btn" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

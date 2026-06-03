@@ -24,4 +24,46 @@
     <string name="code_otp_label">Code</string>
     <string name="check">Check</string>
     <string name="location">Location</string>
+
+    <string name="checkout_title">Checkout</string>
+    <string name="pay_with_stripe">Pay with Stripe</string>
+    <string name="no_product_selected">No product selected</string>
+    <string name="failed_load_product">Failed to load product</string>
+    <string name="failed_initiate_payment">Failed to initiate payment</string>
+    <string name="payment_canceled">Payment Canceled</string>
+    <string name="payment_failed_prefix">Payment Failed: %1$s</string>
+    <string name="purchase_successful">Purchase successful!</string>
+    <string name="failed_create_order">Failed to create order record</string>
+    <string name="payment_verification_failed">Payment verification failed</string>
+
+    <string name="new_updoc_title">New UpDoc</string>
+    <string name="project_title_hint">Project Title</string>
+    <string name="ai_description_btn">AI Description</string>
+    <string name="ai_steps_btn">AI Steps</string>
+    <string name="ai_all_btn">AI All</string>
+    <string name="description_hint">Description</string>
+    <string name="steps_label">Steps</string>
+    <string name="add_step_btn">Add Step</string>
+    <string name="save_project_btn">Save Project</string>
+    <string name="step_title_hint">Step Title</string>
+    <string name="step_description_hint">Step Description</string>
+    <string name="step_duration_hint">Duration (minutes)</string>
+    <string name="edit_step_title">Edit Step</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="enter_title_first">Please enter a title first</string>
+    <string name="title_desc_required">Title and Description are required</string>
+    <string name="project_saved_success">Project saved successfully!</string>
+    <string name="failed_save_project">Failed to save project</string>
+
+    <string name="no_items_found">No items found</string>
+    <string name="create_new_btn">Create New</string>
+    <string name="empty_updoc_message">No UpDoc yet, be the first to create one!</string>
+    <string name="create_updoc_btn">Create UpDoc</string>
+    <string name="empty_offers_message">No offers available right now.</string>
+    <string name="refresh_btn">Refresh</string>
+    <string name="empty_containers_message">No containers found near you.</string>
+    <string name="items_inside_container">Items inside this container</string>
+    <string name="load_more_btn">Load More</string>
+    <string name="capacity_format">%1$d L</string>
 </resources>

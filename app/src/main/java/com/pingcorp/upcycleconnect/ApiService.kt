@@ -30,7 +30,7 @@ interface ApiService {
     suspend fun getUserProfile(
         @Path("id") userId: String,
         @Header("Authorization") token: String
-    ): Response<JsonElement>
+    ): Response<User>
 
     @GET("/annonces/{id}")
     suspend fun getAnnonce(
@@ -38,13 +38,19 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Annonce>
 
-    @POST("/common/create-payment-intent")
+    @GET("/conteneurs/{id}/items")
+    suspend fun getContainerItems(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
+    @POST("pages/common/create-payment-intent")
     suspend fun createPaymentIntent(
         @Body body: PaymentIntentRequest,
         @Header("Authorization") token: String
     ): Response<PaymentIntentResponse>
 
-    @POST("/common/verify-payment")
+    @POST("pages/common/verify-payment")
     suspend fun verifyPayment(
         @Body body: VerifyPaymentRequest,
         @Header("Authorization") token: String

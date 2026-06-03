@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.decodeFromJsonElement
 
 class BanActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
@@ -56,12 +55,11 @@ class BanActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitClient.api.getUserProfile(adminId, "Bearer $token")
-                val element = response.body()
-                if (response.isSuccessful && element != null && element !is kotlinx.serialization.json.JsonNull) {
-                    val admin = RetrofitClient.json.decodeFromJsonElement<UserData>(element)
-                    val fullName = "${admin.first_name ?: ""} ${admin.last_name ?: ""}".trim()
+                val admin = response.body()
+                if (response.isSuccessful && admin != null) {
+                    val fullName = "${admin.firstName ?: ""} ${admin.lastName ?: ""}".trim()
                     withContext(Dispatchers.Main) {
-                        textView.text = if (fullName.isNotEmpty()) fullName else admin.username ?: admin.email
+                        textView.text = if (fullName.isNotEmpty()) fullName else admin.username
                     }
                 } else {
                     withContext(Dispatchers.Main) {

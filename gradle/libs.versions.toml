@@ -10,8 +10,10 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 activityKtx = "1.8.0"
 stripe = "23.9.0"
+coil = "2.7.0"
 
 [libraries]
+coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 stripe-android = { group = "com.stripe", name = "stripe-android", version.ref = "stripe" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

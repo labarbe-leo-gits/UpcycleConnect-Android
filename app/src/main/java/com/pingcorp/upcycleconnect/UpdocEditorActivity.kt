@@ -69,9 +69,9 @@ class UpdocEditorActivity : BaseActivity() {
         }
 
         AlertDialog.Builder(this)
-            .setTitle(if (step == null) "Add Step" else "Edit Step")
+            .setTitle(if (step == null) getString(R.string.add_step_btn) else getString(R.string.edit_step_title))
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(getString(R.string.save_btn)) { _, _ ->
                 val title = etStepTitle.text.toString()
                 val description = etStepDescription.text.toString()
                 val duration = etStepDuration.text.toString().toIntOrNull()
@@ -91,7 +91,7 @@ class UpdocEditorActivity : BaseActivity() {
                     refreshStepsUi()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel_btn), null)
             .show()
     }
 
@@ -114,7 +114,7 @@ class UpdocEditorActivity : BaseActivity() {
     private fun generateAi(type: String) {
         val context = etTitle.text.toString()
         if (context.isEmpty()) {
-            Toast.makeText(this, "Please enter a title first", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.enter_title_first), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -245,7 +245,7 @@ class UpdocEditorActivity : BaseActivity() {
         val userId = sessionManager.getUserId() ?: return
 
         if (title.isEmpty() || description.isEmpty()) {
-            Toast.makeText(this, "Title and Description are required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.title_desc_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -267,11 +267,11 @@ class UpdocEditorActivity : BaseActivity() {
                         stepsList.forEach { step ->
                             RetrofitClient.api.createProjectStep(project.id, step, "Bearer $token")
                         }
-                        Toast.makeText(this@UpdocEditorActivity, "Project saved successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@UpdocEditorActivity, getString(R.string.project_saved_success), Toast.LENGTH_SHORT).show()
                         finish()
                     }
                 } else {
-                    Toast.makeText(this@UpdocEditorActivity, "Failed to save project", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UpdocEditorActivity, getString(R.string.failed_save_project), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Log.e("UpdocEditor", "Save error", e)

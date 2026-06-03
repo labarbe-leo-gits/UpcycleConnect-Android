@@ -4,8 +4,11 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -14,9 +17,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.decodeFromJsonElement
 import java.io.IOException
 import java.util.Locale
@@ -24,6 +30,15 @@ import java.util.Locale
 class ContainerActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private lateinit var webViewMap: WebView
+    private lateinit var recyclerViewItems: RecyclerView
+    private lateinit var adapter: ConteneurItemAdapter
+    private lateinit var progressBarItems: ProgressBar
+    private lateinit var btnLoadMore: Button
+    
+    private var allItems = mutableListOf<ConteneurItem>()
+    private var displayedItems = mutableListOf<ConteneurItem>()
+    private var currentPage = 0
+    private val pageSize = 5
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +63,22 @@ class ContainerActivity : AppCompatActivity() {
         webViewMap.settings.userAgentString = "UpcycleConnect/1.0 (Android; Mobile)"
         webViewMap.webViewClient = WebViewClient()
 
+        recyclerViewItems = findViewById(R.id.recyclerViewItems)
+        recyclerViewItems.layoutManager = LinearLayoutManager(this)
+        adapter = ConteneurItemAdapter(displayedItems)
+        recyclerViewItems.adapter = adapter
+
+        progressBarItems = findViewById(R.id.progressBarItems)
+        btnLoadMore = findViewById(R.id.btnLoadMore)
+
+        btnLoadMore.setOnClickListener {
+            loadNextPage()
+        }
+
         val containerId = intent.getStringExtra("CONTAINER_ID")
         if (containerId != null) {
             fetchContainerDetails(containerId)
+            fetchContainerItems(containerId)
         } else {
             Toast.makeText(this, "No container ID found", Toast.LENGTH_SHORT).show()
             finish()
@@ -58,12 +86,7 @@ class ContainerActivity : AppCompatActivity() {
     }
 
     private fun fetchContainerDetails(id: String) {
-        val token = sessionManager.getToken()
-        if (token == null) {
-            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        val token = sessionManager.getToken() ?: return
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.api.getContainer(id, "Bearer $token")
@@ -74,8 +97,6 @@ class ContainerActivity : AppCompatActivity() {
                         displayContainer(container)
                         updateMap(container)
                     }
-                } else {
-                    Toast.makeText(this@ContainerActivity, "Failed to fetch details", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Log.e("ContainerActivity", "Error fetching container", e)
@@ -83,17 +104,67 @@ class ContainerActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchContainerItems(id: String) {
+        val token = sessionManager.getToken() ?: return
+        progressBarItems.visibility = View.VISIBLE
+        
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.api.getContainerItems(id, "Bearer $token")
+                progressBarItems.visibility = View.GONE
+                
+                if (response.isSuccessful) {
+                    val element = response.body()
+                    val items = if (element is JsonArray) {
+                        RetrofitClient.json.decodeFromJsonElement<List<ConteneurItem>>(element)
+                    } else emptyList()
+                    
+                    allItems.clear()
+                    allItems.addAll(items)
+                    currentPage = 0
+                    displayedItems.clear()
+                    loadNextPage()
+                }
+            } catch (e: Exception) {
+                progressBarItems.visibility = View.GONE
+                Log.e("ContainerActivity", "Error fetching items", e)
+            }
+        }
+    }
+
+    private fun loadNextPage() {
+        val start = currentPage * pageSize
+        if (start >= allItems.size) {
+            btnLoadMore.visibility = View.GONE
+            return
+        }
+
+        val end = minOf(start + pageSize, allItems.size)
+        val newItems = allItems.subList(start, end)
+        
+        val prevSize = displayedItems.size
+        displayedItems.addAll(newItems)
+        adapter.notifyItemRangeInserted(prevSize, newItems.size)
+        
+        currentPage++
+        
+        if (displayedItems.size >= allItems.size) {
+            btnLoadMore.visibility = View.GONE
+        } else {
+            btnLoadMore.visibility = View.VISIBLE
+        }
+    }
+
     private fun displayContainer(container: Container) {
         findViewById<TextView>(R.id.textViewContainerName).text = container.name
         val address = "${container.number} ${container.road}, ${container.postalCode} ${container.city}"
         findViewById<TextView>(R.id.textViewAddress).text = address
-        
+        findViewById<TextView>(R.id.textViewCapacity).text = getString(R.string.capacity_format, container.capacity)
         title = container.name
     }
 
     private fun updateMap(container: Container) {
         val address = "${container.number} ${container.road}, ${container.postalCode} ${container.city}"
-        
         lifecycleScope.launch(Dispatchers.IO) {
             val geocoder = Geocoder(this@ContainerActivity, Locale.getDefault())
             try {
@@ -105,8 +176,6 @@ class ContainerActivity : AppCompatActivity() {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Log.w("ContainerActivity", "Could not find location for address: $address")
-                        // Load a default location or show message
                         loadLeafletMap(48.8566, 2.3522, "Paris (Location not found)") 
                     }
                 }
@@ -150,7 +219,6 @@ class ContainerActivity : AppCompatActivity() {
             </body>
             </html>
         """.trimIndent()
-        
         webViewMap.loadDataWithBaseURL("https://carto.com", html, "text/html", "UTF-8", null)
     }
 }
