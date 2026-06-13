@@ -76,4 +76,5 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation(libs.stripe.android)
     implementation(libs.coil.kt)
+    implementation("io.noties.markwon:core:4.6.2")
 }

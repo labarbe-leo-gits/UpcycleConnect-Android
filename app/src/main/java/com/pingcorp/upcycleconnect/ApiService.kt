@@ -20,6 +20,19 @@ interface ApiService {
     suspend fun getAnnonces(@Header("Authorization") token: String): Response<JsonElement>
     @GET("/projects")
     suspend fun getProjects(@Header("Authorization") token: String): Response<JsonElement>
+
+    @GET("/projects/{id}")
+    suspend fun getProject(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<Project>
+
+    @GET("/projects/{id}/steps")
+    suspend fun getProjectSteps(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<List<ProjectStep>>
+
     @GET("/users/{id}/bans")
     suspend fun getUserBan(
         @Path("id") userId: String,
@@ -43,6 +56,12 @@ interface ApiService {
         @Path("id") id: String,
         @Header("Authorization") token: String
     ): Response<JsonElement>
+
+    @GET("/deposits/{id}")
+    suspend fun getDeposit(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<ConteneurItem>
 
     @POST("pages/common/create-payment-intent")
     suspend fun createPaymentIntent(
@@ -69,8 +88,22 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<JsonElement>
 
+    @retrofit2.http.PATCH("/deposits/{id}/status")
+    suspend fun updateDepositStatus(
+        @Path("id") id: String,
+        @Body body: StatusUpdate,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
     @POST("/projects")
     suspend fun createProject(
+        @Body body: CreateProjectDto,
+        @Header("Authorization") token: String
+    ): Response<Project>
+
+    @retrofit2.http.PATCH("/projects/{id}")
+    suspend fun updateProject(
+        @Path("id") id: String,
         @Body body: CreateProjectDto,
         @Header("Authorization") token: String
     ): Response<Project>

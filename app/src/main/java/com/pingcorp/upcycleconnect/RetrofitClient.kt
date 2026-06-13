@@ -7,7 +7,15 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
 object RetrofitClient {
-    val json = Json { ignoreUnknownKeys = true }
+    val json = Json { 
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
+
+    val geminiJson = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = false
+    }
 
     private val okHttpClient = okhttp3.OkHttpClient.Builder()
         .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
@@ -34,7 +42,7 @@ object RetrofitClient {
         Retrofit.Builder()
             .baseUrl("https://generativelanguage.googleapis.com/")
             .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(geminiJson.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(GeminiApiService::class.java)
     }

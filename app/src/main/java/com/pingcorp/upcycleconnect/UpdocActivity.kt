@@ -46,8 +46,8 @@ class UpdocActivity : BaseActivity() {
         recyclerView = findViewById(R.id.recyclerViewUpdocs)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = UpdocAdapter(updocsList) { project ->
-            val intent = Intent(this, UpdocEditorActivity::class.java)
-            intent.putExtra("PROJECT_ID", project.id)
+            val intent = Intent(this, UpdocDetailActivity::class.java)
+            intent.putExtra("PROJECT_JSON", RetrofitClient.json.encodeToString(Project.serializer(), project))
             startActivity(intent)
         }
         recyclerView.adapter = adapter
@@ -56,7 +56,10 @@ class UpdocActivity : BaseActivity() {
             val intent = Intent(this, UpdocEditorActivity::class.java)
             startActivity(intent)
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
         fetchUpdocs()
     }
 

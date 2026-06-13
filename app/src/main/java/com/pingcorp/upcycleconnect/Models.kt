@@ -78,8 +78,8 @@ data class ProjectStep(
     @SerialName("step_order") val stepOrder: Int,
     val title: String,
     val description: String,
-    @SerialName("duration_minutes") val durationMin: Int,
-    @SerialName("created_at") val createdAt: String
+    @SerialName("duration_minutes") val durationMin: Int? = null,
+    @SerialName("created_at") val createdAt: String = ""
 )
 
 @Serializable
@@ -120,14 +120,14 @@ data class MaterialFactor(
 
 @Serializable
 data class Deposit(
-    val id: String,
+    @SerialName("id") val id: String,
     @SerialName("user_id") val userId: String,
     @SerialName("conteneur_id") val conteneurId: String,
     @SerialName("object_name") val objectName: String,
     @SerialName("object_description") val objectDescription: String,
     @SerialName("object_state") val objectState: Int? = null,
-    val status: Int,
-    val barcode: String? = null,
+    @SerialName("status") val status: Int,
+    @SerialName("barcode") val barcode: String? = null,
     @SerialName("retrieval_code") val retrievalCode: String? = null,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String
@@ -156,18 +156,18 @@ data class DepositFileInput(
 
 @Serializable
 data class ConteneurItem(
-    val id: String,
+    @SerialName("id") val id: String,
     @SerialName("user_id") val userId: String,
     @SerialName("conteneur_id") val conteneurId: String,
     @SerialName("object_name") val objectName: String,
     @SerialName("object_description") val objectDescription: String,
     @SerialName("object_state") val objectState: Int? = null,
-    val status: Int,
-    val barcode: String? = null,
+    @SerialName("status") val status: Int,
+    @SerialName("barcode") val barcode: String? = null,
     @SerialName("retrieval_code") val retrievalCode: String? = null,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
-    val files: List<DepositFile>
+    @SerialName("files") val files: List<DepositFile>
 )
 
 @Serializable
@@ -277,10 +277,13 @@ data class CreateProjectDto(
 
 @Serializable
 data class CreateProjectStepDto(
+    @SerialName("id") val id: String = "00000000-0000-0000-0000-000000000000",
+    @SerialName("project_id") val projectId: String,
     @SerialName("step_order") val stepOrder: Int,
     val title: String,
     val description: String,
-    @SerialName("duration_minutes") val durationMin: Int? = null
+    @SerialName("duration_minutes") val durationMin: Int? = null,
+    @SerialName("created_at") val createdAt: String = ""
 )
 
 @Serializable

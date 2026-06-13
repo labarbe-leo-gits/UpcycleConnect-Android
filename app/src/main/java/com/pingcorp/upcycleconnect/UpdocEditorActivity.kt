@@ -26,6 +26,7 @@ class UpdocEditorActivity : BaseActivity() {
     private lateinit var etTitle: TextInputEditText
     private lateinit var etDescription: TextInputEditText
     private lateinit var progressBar: ProgressBar
+    private var existingProjectId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,60 @@ class UpdocEditorActivity : BaseActivity() {
         findViewById<Button>(R.id.btnGenerateAll).setOnClickListener { generateAi("generate_all") }
         findViewById<Button>(R.id.btnAddStep).setOnClickListener { showStepDialog() }
         findViewById<Button>(R.id.btnSave).setOnClickListener { saveProject() }
+
+        existingProjectId = intent.getStringExtra("PROJECT_ID")
+        if (existingProjectId != null) {
+            loadProject(existingProjectId!!)
+        }
+    }
+
+    private fun loadProject(id: String) {
+        val token = sessionManager.getToken() ?: return
+        progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try {
+                val projectResponse = RetrofitClient.api.getProject(id, "Bearer $token")
+                if (projectResponse.isSuccessful) {
+                    val project = projectResponse.body()
+                    if (project != null) {
+                        etTitle.setText(project.title)
+                        etDescription.setText(project.description)
+                        loadSteps(id)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("UpdocEditor", "Error loading project", e)
+            } finally {
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun loadSteps(id: String) {
+        val token = sessionManager.getToken() ?: return
+        lifecycleScope.launch {
+            try {
+                val stepsResponse = RetrofitClient.api.getProjectSteps(id, "Bearer $token")
+                if (stepsResponse.isSuccessful) {
+                    val steps = stepsResponse.body() ?: emptyList()
+                    stepsList.clear()
+                    steps.forEach { step ->
+                        stepsList.add(CreateProjectStepDto(
+                            id = step.id,
+                            projectId = id,
+                            stepOrder = step.stepOrder,
+                            title = step.title,
+                            description = step.description,
+                            durationMin = step.durationMin,
+                            createdAt = step.createdAt
+                        ))
+                    }
+                    refreshStepsUi()
+                }
+            } catch (e: Exception) {
+                Log.e("UpdocEditor", "Error loading steps", e)
+            }
+        }
     }
 
     private fun showStepDialog(step: CreateProjectStepDto? = null, index: Int = -1) {
@@ -78,6 +133,7 @@ class UpdocEditorActivity : BaseActivity() {
 
                 if (title.isNotEmpty() && description.isNotEmpty()) {
                     val newStep = CreateProjectStepDto(
+                        projectId = existingProjectId ?: "00000000-0000-0000-0000-000000000000",
                         stepOrder = if (index != -1) index + 1 else stepsList.size + 1,
                         title = title,
                         description = description,
@@ -232,7 +288,12 @@ class UpdocEditorActivity : BaseActivity() {
             if (match != null) {
                 val title = match.groupValues[1].trim()
                 val description = match.groupValues[2].trim()
-                stepsList.add(CreateProjectStepDto(stepsList.size + 1, title, description))
+                stepsList.add(CreateProjectStepDto(
+                    projectId = existingProjectId ?: "00000000-0000-0000-0000-000000000000",
+                    stepOrder = stepsList.size + 1,
+                    title = title,
+                    description = description
+                ))
             }
         }
         refreshStepsUi()
@@ -259,15 +320,32 @@ class UpdocEditorActivity : BaseActivity() {
                     description = description,
                     aiGenerated = if (isAi) 1 else 0
                 )
-                val response = RetrofitClient.api.createProject(projectDto, "Bearer $token")
+                
+                val response = if (existingProjectId != null) {
+                    RetrofitClient.api.updateProject(existingProjectId!!, projectDto, "Bearer $token")
+                } else {
+                    RetrofitClient.api.createProject(projectDto, "Bearer $token")
+                }
 
                 if (response.isSuccessful) {
                     val project = response.body()
                     if (project != null) {
+                        // TODO: Handle step updates properly (delete removed, update existing, add new)
+                        // For now, let's just add new ones or re-add (this might cause duplicates depending on backend)
+                        var stepsFailed = false
                         stepsList.forEach { step ->
-                            RetrofitClient.api.createProjectStep(project.id, step, "Bearer $token")
+                            val stepWithId = step.copy(projectId = project.id)
+                            val stepResponse = RetrofitClient.api.createProjectStep(project.id, stepWithId, "Bearer $token")
+                            if (!stepResponse.isSuccessful) {
+                                stepsFailed = true
+                                Log.e("UpdocEditor", "Failed to save step: ${stepResponse.code()}")
+                            }
                         }
-                        Toast.makeText(this@UpdocEditorActivity, getString(R.string.project_saved_success), Toast.LENGTH_SHORT).show()
+                        if (stepsFailed) {
+                            Toast.makeText(this@UpdocEditorActivity, "Project saved but some steps failed", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this@UpdocEditorActivity, getString(R.string.project_saved_success), Toast.LENGTH_SHORT).show()
+                        }
                         finish()
                     }
                 } else {

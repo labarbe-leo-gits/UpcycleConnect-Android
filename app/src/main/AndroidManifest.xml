@@ -28,6 +28,9 @@
             android:name=".UpdocEditorActivity"
             android:exported="false" />
         <activity
+            android:name=".UpdocDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".UpdocActivity"
             android:exported="false" />
         <activity
@@ -41,6 +44,9 @@
             android:exported="false" />
         <activity
             android:name=".CheckoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConteneurItemDetailActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -1,5 +1,6 @@
 package com.pingcorp.upcycleconnect
 
+import android.content.Intent
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.decodeFromJsonElement
 import java.io.IOException
@@ -34,11 +37,19 @@ class ContainerActivity : AppCompatActivity() {
     private lateinit var adapter: ConteneurItemAdapter
     private lateinit var progressBarItems: ProgressBar
     private lateinit var btnLoadMore: Button
+    private lateinit var textViewEmptyItems: TextView
     
     private var allItems = mutableListOf<ConteneurItem>()
     private var displayedItems = mutableListOf<ConteneurItem>()
     private var currentPage = 0
     private val pageSize = 5
+    private var containerId: String? = null
+
+    private val detailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            containerId?.let { fetchContainerItems(it) }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,21 +76,26 @@ class ContainerActivity : AppCompatActivity() {
 
         recyclerViewItems = findViewById(R.id.recyclerViewItems)
         recyclerViewItems.layoutManager = LinearLayoutManager(this)
-        adapter = ConteneurItemAdapter(displayedItems)
+        adapter = ConteneurItemAdapter(displayedItems) { item ->
+            val intent = Intent(this, ConteneurItemDetailActivity::class.java)
+            intent.putExtra("ITEM_JSON", RetrofitClient.json.encodeToString(item))
+            detailLauncher.launch(intent)
+        }
         recyclerViewItems.adapter = adapter
 
         progressBarItems = findViewById(R.id.progressBarItems)
         btnLoadMore = findViewById(R.id.btnLoadMore)
+        textViewEmptyItems = findViewById(R.id.textViewEmptyItems)
 
         btnLoadMore.setOnClickListener {
             loadNextPage()
         }
 
-        val containerId = intent.getStringExtra("CONTAINER_ID")
-        if (containerId != null) {
-            fetchContainerDetails(containerId)
-            fetchContainerItems(containerId)
-        } else {
+        containerId = intent.getStringExtra("CONTAINER_ID")
+        containerId?.let {
+            fetchContainerDetails(it)
+            fetchContainerItems(it)
+        } ?: run {
             Toast.makeText(this, "No container ID found", Toast.LENGTH_SHORT).show()
             finish()
         }
@@ -107,6 +123,7 @@ class ContainerActivity : AppCompatActivity() {
     private fun fetchContainerItems(id: String) {
         val token = sessionManager.getToken() ?: return
         progressBarItems.visibility = View.VISIBLE
+        textViewEmptyItems.visibility = View.GONE
         
         lifecycleScope.launch {
             try {
@@ -117,13 +134,17 @@ class ContainerActivity : AppCompatActivity() {
                     val element = response.body()
                     val items = if (element is JsonArray) {
                         RetrofitClient.json.decodeFromJsonElement<List<ConteneurItem>>(element)
+                            .filter { it.status != 5 }
                     } else emptyList()
                     
                     allItems.clear()
                     allItems.addAll(items)
                     currentPage = 0
                     displayedItems.clear()
+                    adapter.notifyDataSetChanged()
                     loadNextPage()
+                    
+                    textViewEmptyItems.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
                 }
             } catch (e: Exception) {
                 progressBarItems.visibility = View.GONE
@@ -148,18 +169,13 @@ class ContainerActivity : AppCompatActivity() {
         
         currentPage++
         
-        if (displayedItems.size >= allItems.size) {
-            btnLoadMore.visibility = View.GONE
-        } else {
-            btnLoadMore.visibility = View.VISIBLE
-        }
+        btnLoadMore.visibility = if (displayedItems.size >= allItems.size) View.GONE else View.VISIBLE
     }
 
     private fun displayContainer(container: Container) {
         findViewById<TextView>(R.id.textViewContainerName).text = container.name
         val address = "${container.number} ${container.road}, ${container.postalCode} ${container.city}"
         findViewById<TextView>(R.id.textViewAddress).text = address
-        findViewById<TextView>(R.id.textViewCapacity).text = getString(R.string.capacity_format, container.capacity)
         title = container.name
     }
 

@@ -66,4 +66,24 @@
     <string name="items_inside_container">Items inside this container</string>
     <string name="load_more_btn">Load More</string>
     <string name="capacity_format">%1$d L</string>
+    <string name="empty_container_items">Nothing available for pickup in this container yet!</string>
+
+    <string name="item_details">Item Details</string>
+    <string name="name_label">Name:</string>
+    <string name="description_label">Description:</string>
+    <string name="status_label">Status:</string>
+    <string name="created_label">Created:</string>
+    <string name="barcode_label">Barcode:</string>
+    <string name="container_label">Container:</string>
+    <string name="address_label">Address:</string>
+    <string name="user_label">User</string>
+    <string name="retrieval_code_label">RETRIEVAL CODE</string>
+    <string name="download_png">Download PNG</string>
+    <string name="download_pdf">Download PDF</string>
+    <string name="copy_label">Copy</string>
+    <string name="attachments_label">Attachment(s)</string>
+    <string name="no_files_attached">No files attached.</string>
+    <string name="download_zip">Download ZIP</string>
+    <string name="mark_as_recovered">Mark as Recovered</string>
+    <string name="close_btn">Close</string>
 </resources>
