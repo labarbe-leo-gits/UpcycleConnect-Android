@@ -27,6 +27,7 @@ class UpdocEditorActivity : BaseActivity() {
     private lateinit var etDescription: TextInputEditText
     private lateinit var progressBar: ProgressBar
     private var existingProjectId: String? = null
+    private val deletedStepIds = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,7 +160,10 @@ class UpdocEditorActivity : BaseActivity() {
             view.findViewById<TextView>(R.id.tvStepTitle).text = step.title
             view.findViewById<TextView>(R.id.tvStepDescription).text = step.description
             view.findViewById<ImageButton>(R.id.btnRemoveStep).setOnClickListener {
-                stepsList.removeAt(index)
+                val removed = stepsList.removeAt(index)
+                if (removed.id != "00000000-0000-0000-0000-000000000000") {
+                    deletedStepIds.add(removed.id)
+                }
                 refreshStepsUi()
             }
             view.setOnClickListener { showStepDialog(step, index) }
@@ -282,6 +286,7 @@ class UpdocEditorActivity : BaseActivity() {
 
     private fun parseAndAddSteps(text: String) {
         val lines = text.split("\n")
+        stepsList.forEach { if (it.id != "00000000-0000-0000-0000-000000000000") deletedStepIds.add(it.id) }
         stepsList.clear()
         lines.forEach { line ->
             val match = Regex("""\d+\.\s*(.*?)\s*-\s*(.*)""").find(line)
@@ -321,33 +326,46 @@ class UpdocEditorActivity : BaseActivity() {
                     aiGenerated = if (isAi) 1 else 0
                 )
                 
-                val response = if (existingProjectId != null) {
-                    RetrofitClient.api.updateProject(existingProjectId!!, projectDto, "Bearer $token")
+                val projectId: String? = if (existingProjectId != null) {
+                    val response = RetrofitClient.api.updateProject(existingProjectId!!, projectDto, "Bearer $token")
+                    if (response.isSuccessful) existingProjectId else null
                 } else {
-                    RetrofitClient.api.createProject(projectDto, "Bearer $token")
+                    val response = RetrofitClient.api.createProject(projectDto, "Bearer $token")
+                    if (response.isSuccessful) response.body()?.id else null
                 }
 
-                if (response.isSuccessful) {
-                    val project = response.body()
-                    if (project != null) {
-                        // TODO: Handle step updates properly (delete removed, update existing, add new)
-                        // For now, let's just add new ones or re-add (this might cause duplicates depending on backend)
-                        var stepsFailed = false
-                        stepsList.forEach { step ->
-                            val stepWithId = step.copy(projectId = project.id)
-                            val stepResponse = RetrofitClient.api.createProjectStep(project.id, stepWithId, "Bearer $token")
-                            if (!stepResponse.isSuccessful) {
-                                stepsFailed = true
-                                Log.e("UpdocEditor", "Failed to save step: ${stepResponse.code()}")
-                            }
+                if (projectId != null) {
+                    var stepsFailed = false
+
+                    // 1. Delete removed steps
+                    deletedStepIds.forEach { stepId ->
+                        val delResponse = RetrofitClient.api.deleteProjectStep(projectId, stepId, "Bearer $token")
+                        if (!delResponse.isSuccessful) {
+                            Log.e("UpdocEditor", "Failed to delete step $stepId: ${delResponse.code()}")
                         }
-                        if (stepsFailed) {
-                            Toast.makeText(this@UpdocEditorActivity, "Project saved but some steps failed", Toast.LENGTH_LONG).show()
-                        } else {
-                            Toast.makeText(this@UpdocEditorActivity, getString(R.string.project_saved_success), Toast.LENGTH_SHORT).show()
-                        }
-                        finish()
                     }
+
+                    // 2. Create or Update remaining steps
+                    stepsList.forEachIndexed { index, step ->
+                        val stepWithOrder = step.copy(projectId = projectId, stepOrder = index + 1)
+                        val stepResponse = if (step.id == "00000000-0000-0000-0000-000000000000") {
+                            RetrofitClient.api.createProjectStep(projectId, stepWithOrder, "Bearer $token")
+                        } else {
+                            RetrofitClient.api.updateProjectStep(projectId, step.id, stepWithOrder, "Bearer $token")
+                        }
+
+                        if (!stepResponse.isSuccessful) {
+                            stepsFailed = true
+                            Log.e("UpdocEditor", "Failed to save step: ${stepResponse.code()}")
+                        }
+                    }
+
+                    if (stepsFailed) {
+                        Toast.makeText(this@UpdocEditorActivity, "Project saved but some steps failed", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@UpdocEditorActivity, getString(R.string.project_saved_success), Toast.LENGTH_SHORT).show()
+                    }
+                    finish()
                 } else {
                     Toast.makeText(this@UpdocEditorActivity, getString(R.string.failed_save_project), Toast.LENGTH_SHORT).show()
                 }

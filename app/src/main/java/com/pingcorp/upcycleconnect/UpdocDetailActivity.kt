@@ -77,6 +77,11 @@ class UpdocDetailActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        projectId?.let { loadProject(it) }
+    }
+
     private fun loadProject(id: String) {
         val token = sessionManager.getToken() ?: return
         progressBar.visibility = View.VISIBLE

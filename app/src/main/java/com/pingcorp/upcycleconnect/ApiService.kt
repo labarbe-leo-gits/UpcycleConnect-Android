@@ -106,7 +106,7 @@ interface ApiService {
         @Path("id") id: String,
         @Body body: CreateProjectDto,
         @Header("Authorization") token: String
-    ): Response<Project>
+    ): Response<JsonElement>
 
     @POST("/projects/{id}/steps")
     suspend fun createProjectStep(
@@ -114,6 +114,21 @@ interface ApiService {
         @Body body: CreateProjectStepDto,
         @Header("Authorization") token: String
     ): Response<ProjectStep>
+
+    @retrofit2.http.PATCH("/projects/{id}/steps/{sID}")
+    suspend fun updateProjectStep(
+        @Path("id") projectId: String,
+        @Path("sID") stepId: String,
+        @Body body: CreateProjectStepDto,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
+    @retrofit2.http.DELETE("/projects/{id}/steps/{sID}")
+    suspend fun deleteProjectStep(
+        @Path("id") projectId: String,
+        @Path("sID") stepId: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
 }
 
 interface GeminiApiService {
