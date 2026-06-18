@@ -224,9 +224,9 @@ class CheckoutActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
+                val request = VerifyPaymentRequest(piId, product.id, token)
                 val verifyResponse = RetrofitClient.phpApi.verifyPayment(
-                    VerifyPaymentRequest(piId, product.id, token),
-                    "Bearer $token"
+                    request, "Bearer $token"
                 )
 
                 if (verifyResponse.isSuccessful && verifyResponse.body()?.success == true) {

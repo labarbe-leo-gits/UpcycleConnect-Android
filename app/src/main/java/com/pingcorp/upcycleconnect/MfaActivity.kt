@@ -63,7 +63,10 @@ class MfaActivity : AppCompatActivity() {
                         body.user.username,
                         body.user.first_name,
                         body.user.last_name,
-                        body.user.balance
+                        body.user.email,
+                        body.user.company_name,
+                        body.user.balance,
+                        body.user.mfa_enabled
                     )
 
                     withContext(Dispatchers.Main){

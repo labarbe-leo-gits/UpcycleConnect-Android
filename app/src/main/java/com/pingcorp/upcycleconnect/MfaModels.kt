@@ -22,5 +22,7 @@ data class UserData(
     val first_name: String? = null,
     val last_name: String? = null,
     val balance: Double = 0.0,
-    val user_type: Int = 0
+    val user_type: Int = 0,
+    val mfa_enabled: Boolean = false,
+    val company_name: String? = null
 )

@@ -177,7 +177,10 @@ class MainActivity : AppCompatActivity() {
                                     userObj.optString("username"),
                                     userObj.optString("first_name"),
                                     userObj.optString("last_name"),
-                                    userObj.optDouble("balance", 0.0)
+                                    userObj.optString("email"),
+                                    userObj.optString("company_name"),
+                                    userObj.optDouble("balance", 0.0),
+                                    userObj.optBoolean("mfa_enabled", false)
                                 )
 
                                 withContext(Dispatchers.Main) {

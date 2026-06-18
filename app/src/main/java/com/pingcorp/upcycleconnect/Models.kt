@@ -176,7 +176,23 @@ data class User(
     val username: String,
     @SerialName("first_name") val firstName: String? = null,
     @SerialName("last_name") val lastName: String? = null,
+    val email: String? = null,
+    @SerialName("company_name") val companyName: String? = null
+)
+
+@Serializable
+data class UpdateUserDto(
+    val username: String? = null,
+    @SerialName("first_name") val firstName: String? = null,
+    @SerialName("last_name") val lastName: String? = null,
     val email: String? = null
+)
+
+@Serializable
+data class DeleteUserRequest(
+    val username: String,
+    val password: String? = null,
+    @SerialName("mfa_code") val code: String? = null
 )
 
 @Serializable

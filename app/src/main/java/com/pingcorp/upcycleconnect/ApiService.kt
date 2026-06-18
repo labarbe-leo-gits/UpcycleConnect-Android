@@ -45,6 +45,20 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<User>
 
+    @retrofit2.http.PATCH("/users/{id}")
+    suspend fun updateUser(
+        @Path("id") userId: String,
+        @Body body: UpdateUserDto,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
+    @retrofit2.http.HTTP(method = "DELETE", path = "/users/{id}", hasBody = true)
+    suspend fun deleteUser(
+        @Path("id") userId: String,
+        @Body body: DeleteUserRequest,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
     @GET("/annonces/{id}")
     suspend fun getAnnonce(
         @Path("id") id: String,
