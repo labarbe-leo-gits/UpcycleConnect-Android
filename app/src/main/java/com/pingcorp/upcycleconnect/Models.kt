@@ -177,7 +177,8 @@ data class User(
     @SerialName("first_name") val firstName: String? = null,
     @SerialName("last_name") val lastName: String? = null,
     val email: String? = null,
-    @SerialName("company_name") val companyName: String? = null
+    @SerialName("company_name") val companyName: String? = null,
+    @SerialName("mfa_enabled") val mfaEnabled: Boolean = false
 )
 
 @Serializable

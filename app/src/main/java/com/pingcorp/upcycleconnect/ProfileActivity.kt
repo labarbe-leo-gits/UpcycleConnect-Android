@@ -1,18 +1,25 @@
 package com.pingcorp.upcycleconnect
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import coil.load
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -111,6 +118,17 @@ class ProfileActivity : BaseActivity() {
         val logoutBtn = findViewById<com.google.android.material.button.MaterialButton>(R.id.logoutBtn)
         val logoutProgress = findViewById<android.widget.ProgressBar>(R.id.logoutProgress)
         val btnDeleteAccount = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDeleteAccount)
+        val btnSetupMFA = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSetupMFA)
+
+        updateMfaButtonState(btnSetupMFA)
+
+        btnSetupMFA.setOnClickListener {
+            if (sessionManager.isMfaEnabled()) {
+                showDisableMfaDialog()
+            } else {
+                initiateMfaSetup()
+            }
+        }
 
         logoutBtn.setOnClickListener {
             logoutBtn.text = ""
@@ -128,6 +146,129 @@ class ProfileActivity : BaseActivity() {
 
         btnDeleteAccount.setOnClickListener {
             showDeleteAccountDialog()
+        }
+    }
+
+    private fun updateMfaButtonState(btn: com.google.android.material.button.MaterialButton) {
+        if (sessionManager.isMfaEnabled()) {
+            btn.text = getString(R.string.disable_mfa)
+            btn.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.error_red))
+            btn.setIconResource(android.R.drawable.ic_menu_close_clear_cancel)
+        } else {
+            btn.text = getString(R.string.setup_mfa)
+            btn.backgroundTintList = android.content.res.ColorStateList.valueOf(getColor(R.color.primary_green))
+            btn.setIconResource(android.R.drawable.ic_lock_lock)
+        }
+    }
+
+    private fun showDisableMfaDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.disable_mfa_confirm_title)
+            .setMessage(R.string.disable_mfa_confirm_msg)
+            .setPositiveButton(R.string.delete_confirm_btn) { _, _ ->
+                disableMfa()
+            }
+            .setNegativeButton(R.string.cancel_btn, null)
+            .show()
+    }
+
+    private fun disableMfa() {
+        val token = sessionManager.getToken() ?: return
+        val userId = sessionManager.getUserId() ?: return
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.authApi.disableMFA(userId, "Bearer $token")
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ProfileActivity, R.string.mfa_disabled_success, Toast.LENGTH_SHORT).show()
+                    // Refresh profile to update session and UI
+                    fetchUserProfile(token, userId)
+                } else {
+                    Log.e("Profile", "Disable MFA failed: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@ProfileActivity, R.string.mfa_disable_failed, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("Profile", "Error disabling MFA", e)
+                Toast.makeText(this@ProfileActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun initiateMfaSetup() {
+        val token = sessionManager.getToken() ?: return
+        val userId = sessionManager.getUserId() ?: return
+        
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.authApi.setupMFA(userId, "Bearer $token")
+                if (response.isSuccessful) {
+                    val setupData = response.body()
+                    if (setupData != null) {
+                        showMfaSetupDialog(setupData)
+                    }
+                } else {
+                    Log.e("Profile", "MFA Setup failed: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@ProfileActivity, R.string.mfa_setup_failed, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("Profile", "Error setting up MFA", e)
+                Toast.makeText(this@ProfileActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun showMfaSetupDialog(setupData: MfaSetupResponse) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_mfa_setup, null)
+        val ivQrCode = dialogView.findViewById<ImageView>(R.id.ivQrCode)
+        val tvSecretKey = dialogView.findViewById<TextView>(R.id.tvSecretKey)
+        val btnCopyKey = dialogView.findViewById<android.widget.Button>(R.id.btnCopyKey)
+        val etMfaCode = dialogView.findViewById<EditText>(R.id.etMfaCode)
+
+        tvSecretKey.text = setupData.secret
+        val qrCodeImageUrl = "https://api.qrserver.com/v1/create-qr-code/?data=${android.net.Uri.encode(setupData.otpUrl)}&size=300x300"
+        ivQrCode.load(qrCodeImageUrl)
+
+        btnCopyKey.setOnClickListener {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("MFA Secret Key", setupData.secret)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this, R.string.mfa_key_copied, Toast.LENGTH_SHORT).show()
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.mfa_setup_title)
+            .setView(dialogView)
+            .setPositiveButton(R.string.mfa_verify_code) { _, _ ->
+                val code = etMfaCode.text.toString()
+                if (code.length == 6) {
+                    enableMfa(setupData.secret, code)
+                } else {
+                    Toast.makeText(this, "Please enter a 6-digit code", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel_btn, null)
+            .show()
+    }
+
+    private fun enableMfa(secret: String, code: String) {
+        val token = sessionManager.getToken() ?: return
+        val userId = sessionManager.getUserId() ?: return
+        
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.authApi.enableMFA(userId, "Bearer $token", MfaEnableRequest(secret, code))
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ProfileActivity, R.string.mfa_enabled_success, Toast.LENGTH_SHORT).show()
+                    // Update user profile to reflect MFA status
+                    fetchUserProfile(token, userId)
+                } else {
+                    Log.e("Profile", "MFA Enable failed: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@ProfileActivity, "Verification failed. Check the code.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("Profile", "Error enabling MFA", e)
+                Toast.makeText(this@ProfileActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -321,6 +462,7 @@ class ProfileActivity : BaseActivity() {
         tvCompanyName.text = sessionManager.getCompanyName() ?: "N/A"
         val balance = sessionManager.getBalance()
         tvBalance.text = String.format(Locale.getDefault(), "%.2f €", balance)
+        updateMfaButtonState(findViewById(R.id.btnSetupMFA))
     }
 
     private fun fetchUserProfile(token: String, userId: String) {
@@ -332,12 +474,25 @@ class ProfileActivity : BaseActivity() {
                 val email = json.optString("email", "N/A")
                 val companyName = json.optString("company_name", "N/A")
                 val balance = json.optDouble("balance", 0.0)
-                val mfaEnabled = json.optBoolean("mfa_enabled", false)
 
-                sessionManager.saveSession(token, userId, username, firstName, lastName, email, companyName, balance, mfaEnabled)
-
-                runOnUiThread {
-                    displaySessionData()
+                // Fetch MFA info separately as the main user endpoint might not include it
+                lifecycleScope.launch {
+                    try {
+                        val mfaResponse = RetrofitClient.authApi.getMFAInfo(userId, "Bearer $token")
+                        val mfaEnabled = if (mfaResponse.isSuccessful) {
+                            mfaResponse.body()?.mfaEnabled ?: false
+                        } else {
+                            // Fallback to json object if separate check fails
+                            json.optBoolean("mfa_enabled", json.optBoolean("2fa_enabled", false))
+                        }
+                        
+                        sessionManager.saveSession(token, userId, username, firstName, lastName, email, companyName, balance, mfaEnabled)
+                        runOnUiThread { displaySessionData() }
+                    } catch (e: Exception) {
+                        Log.e("Profile", "Error fetching MFA info", e)
+                        sessionManager.saveSession(token, userId, username, firstName, lastName, email, companyName, balance, false)
+                        runOnUiThread { displaySessionData() }
+                    }
                 }
             }
         }

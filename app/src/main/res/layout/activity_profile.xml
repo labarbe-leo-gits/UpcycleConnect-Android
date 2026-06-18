@@ -342,6 +342,19 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/profileCard">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSetupMFA"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="@color/primary_green"
+                android:text="@string/setup_mfa"
+                android:textAllCaps="false"
+                app:cornerRadius="8dp"
+                app:icon="@android:drawable/ic_lock_lock"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp" />
+
             <FrameLayout
                 android:id="@+id/logoutFrame"
                 android:layout_width="match_parent"

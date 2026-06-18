@@ -95,4 +95,18 @@
     <string name="delete_confirm_btn">Delete Permanently</string>
     <string name="wrong_username_confirm">Username does not match</string>
     <string name="account_deleted">Account deleted successfully</string>
+    <string name="setup_mfa">Setup MFA</string>
+    <string name="mfa_setup_title">MFA Setup</string>
+    <string name="mfa_setup_instructions">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.).</string>
+    <string name="mfa_copy_key">Copy Secret Key</string>
+    <string name="mfa_key_copied">Secret key copied to clipboard</string>
+    <string name="mfa_verify_code">Verify Code</string>
+    <string name="mfa_enter_code">Enter 6-digit code</string>
+    <string name="mfa_enabled_success">MFA enabled successfully!</string>
+    <string name="mfa_setup_failed">Failed to initiate MFA setup</string>
+    <string name="disable_mfa">Disable MFA</string>
+    <string name="disable_mfa_confirm_title">Disable MFA?</string>
+    <string name="disable_mfa_confirm_msg">Are you sure you want to disable Multi-Factor Authentication? Your account will be less secure.</string>
+    <string name="mfa_disabled_success">MFA disabled successfully</string>
+    <string name="mfa_disable_failed">Failed to disable MFA</string>
 </resources>
