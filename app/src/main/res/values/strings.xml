@@ -26,6 +26,13 @@
     <string name="code_otp_label">Code</string>
     <string name="check">Check</string>
     <string name="location">Location</string>
+    <string name="access_denied">Access Denied</string>
+    <string name="pros_only_msg">This application is reserved for professionals and artisans.</string>
+    <string name="account_check_error">Error checking account status</string>
+    <string name="invalid_code_error">Incorrect code or server error</string>
+    <string name="connection_error_prefix">Connection error: %1$s</string>
+    <string name="error_fetching_notifications">Error fetching notifications</string>
+    <string name="network_error">Network error</string>
 
     <string name="checkout_title">Checkout</string>
     <string name="pay_with_stripe">Pay with Stripe</string>
@@ -109,4 +116,15 @@
     <string name="disable_mfa_confirm_msg">Are you sure you want to disable Multi-Factor Authentication? Your account will be less secure.</string>
     <string name="mfa_disabled_success">MFA disabled successfully</string>
     <string name="mfa_disable_failed">Failed to disable MFA</string>
+
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_setup_description">To receive updates on your offers and important alerts, please enable notifications.</string>
+    <string name="enable_notifications_btn">Enable Notifications</string>
+
+    <string name="unread_tab">Unread</string>
+    <string name="read_tab">Read</string>
+    <string name="mark_all_read">Mark all as read</string>
+    <string name="clear_tab">Clear current tab</string>
+    <string name="mark_read_btn">Mark as read</string>
+    <string name="no_notifications">No notifications</string>
 </resources>

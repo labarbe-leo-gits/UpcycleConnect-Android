@@ -69,6 +69,8 @@ class MfaActivity : AppCompatActivity() {
                         body.user.mfa_enabled
                     )
 
+                    OneSignalUtils.registerPlayerId(body.user.id, body.token)
+
                     withContext(Dispatchers.Main){
                         startActivity(Intent(this@MfaActivity, ProfileActivity::class.java))
                         finish()
@@ -77,13 +79,13 @@ class MfaActivity : AppCompatActivity() {
                     val errorBody = response.errorBody()?.string()
                     android.util.Log.e("MFA", "Verification failed: ${response.code()} - $errorBody")
                     withContext(Dispatchers.Main){
-                        Toast.makeText(this@MfaActivity, "Code incorrect ou erreur serveur", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MfaActivity, R.string.invalid_code_error, Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception){
                 android.util.Log.e("MFA", "Connection error", e)
                 withContext(Dispatchers.Main){
-                    Toast.makeText(this@MfaActivity, "Erreur de connexion: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MfaActivity, getString(R.string.connection_error_prefix, e.message), Toast.LENGTH_SHORT).show()
                 }
             }
         }

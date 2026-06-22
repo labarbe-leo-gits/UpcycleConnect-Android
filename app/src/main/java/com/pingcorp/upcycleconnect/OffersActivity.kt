@@ -91,5 +91,5 @@ class OffersActivity : BaseActivity() {
         }
     }
 
-    override fun getSelfNavDrawerItemId(): Int = R.id.nav_offers
+//    override fun getSelfNavDrawerItemId(): Int = R.id.nav_offers
 }

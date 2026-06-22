@@ -186,7 +186,8 @@ data class UpdateUserDto(
     val username: String? = null,
     @SerialName("first_name") val firstName: String? = null,
     @SerialName("last_name") val lastName: String? = null,
-    val email: String? = null
+    val email: String? = null,
+    @SerialName("one_signal_player_id") val oneSignalPlayerId: String? = null
 )
 
 @Serializable
@@ -199,7 +200,7 @@ data class DeleteUserRequest(
 @Serializable
 data class Notification(
     val id: String,
-    @SerialName("annonce_id") val annonceId: String,
+    @SerialName("annonce_id") val annonceId: String? = null,
     @SerialName("user_id") val userId: String,
     val message: String,
     val read: Boolean,

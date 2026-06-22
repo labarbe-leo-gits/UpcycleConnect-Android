@@ -54,14 +54,17 @@ open class BaseActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_updoc -> {
                 startActivity(Intent(this, UpdocActivity::class.java))
             }
-            R.id.nav_offers -> {
-                startActivity(Intent(this, OffersActivity::class.java))
-            }
+//            R.id.nav_offers -> {
+//                startActivity(Intent(this, OffersActivity::class.java))
+//            }
             R.id.nav_profile -> {
                 startActivity(Intent(this, ProfileActivity::class.java))
             }
             R.id.nav_containers -> {
                 startActivity(Intent(this, ContainersActivity::class.java))
+            }
+            R.id.nav_notifications -> {
+                startActivity(Intent(this, NotificationsActivity::class.java))
             }
         }
 

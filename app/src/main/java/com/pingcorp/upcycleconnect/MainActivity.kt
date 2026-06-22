@@ -16,6 +16,8 @@ import kotlin.concurrent.thread
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -142,8 +144,8 @@ class MainActivity : AppCompatActivity() {
                             loginProgress.visibility = View.GONE
 
                             AlertDialog.Builder(this@MainActivity)
-                                .setTitle("Accès refusé")
-                                .setMessage("Cette application est réservée aux professionels et artisans.")
+                                .setTitle(R.string.access_denied)
+                                .setMessage(R.string.pros_only_msg)
                                 .setPositiveButton("OK", null)
                                 .show()
                         }
@@ -183,6 +185,8 @@ class MainActivity : AppCompatActivity() {
                                     userObj.optBoolean("mfa_enabled", false)
                                 )
 
+                                OneSignalUtils.registerPlayerId(userId, token)
+
                                 withContext(Dispatchers.Main) {
                                     loginBtn.isEnabled = true
                                     loginBtn.text = getString(R.string.login)
@@ -199,7 +203,7 @@ class MainActivity : AppCompatActivity() {
                                 loginBtn.isEnabled = true
                                 loginBtn.text = getString(R.string.login)
                                 loginProgress.visibility = View.GONE
-                                Toast.makeText(this@MainActivity, "Erreur lors de la vérification du compte", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@MainActivity, R.string.account_check_error, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -240,8 +244,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val apiKey = BuildConfig.API_KEY
         if (apiKey.isEmpty() || apiKey == "YOUR_API_KEY_HERE") {

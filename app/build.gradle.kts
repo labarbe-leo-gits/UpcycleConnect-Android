@@ -37,6 +37,8 @@ android {
         buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"$stripeKey\"")
         val geminiKey = localProperties.getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+        val oneSignalAppId = localProperties.getProperty("ONESIGNAL_APP_ID") ?: ""
+        buildConfigField("String", "ONESIGNAL_APP_ID", "\"$oneSignalAppId\"")
     }
 
     buildTypes {
@@ -76,5 +78,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation(libs.stripe.android)
     implementation(libs.coil.kt)
+    implementation(libs.onesignal)
     implementation("io.noties.markwon:core:4.6.2")
 }

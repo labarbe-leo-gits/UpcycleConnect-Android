@@ -109,6 +109,30 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<JsonElement>
 
+    @GET("/users/{id}/notifications")
+    suspend fun getUserNotifications(
+        @Path("id") userId: String,
+        @Header("Authorization") token: String
+    ): Response<List<Notification>>
+
+    @retrofit2.http.PATCH("/notifications/{id}/read")
+    suspend fun markNotificationAsRead(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
+    @retrofit2.http.PATCH("/users/{id}/notifications/read")
+    suspend fun markAllNotificationsAsRead(
+        @Path("id") userId: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
+    @retrofit2.http.DELETE("/notifications/{id}")
+    suspend fun deleteNotification(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<JsonElement>
+
     @POST("/projects")
     suspend fun createProject(
         @Body body: CreateProjectDto,
